@@ -15,12 +15,14 @@ emphasizing exploration and simple command-driven gameplay
 
 import java.util.Scanner;
 
+/*
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
+ */
 
-public class ZorkULGame extends Application {
+public class ZorkULGame /*extends Application */ {
     private Parser parser;
     private Character player;
 
@@ -28,40 +30,54 @@ public class ZorkULGame extends Application {
         createRooms();
         parser = new Parser();
     }
-
+/*
     @Override
     public void start(Stage stage) {
         stage.setScene(new Scene(new Label("Hello JavaFX!"), 300, 200));
         stage.show();
-
     }
+ */
 
     private void createRooms() {
-        Room outside, theatre, pub, lab, office;
+        Room cell, hall, diningHall, gaurdOffice, sewer1, sewer2, artifactRoom, mainHall;
 
         // create rooms
-        outside = new Room("outside the main entrance of the university");
-        theatre = new Room("in a lecture theatre");
-        pub = new Room("in the campus pub");
-        lab = new Room("in a computing lab");
-        office = new Room("in the computing admin office");
+        cell = new Room("Dark dreary cell - lockpicks 3x");
+        hall = new Room("Cold empty hall - sewer entrance");
+        diningHall = new Room("Disgusting rodent-infested dining hall - npc with warning");
+        gaurdOffice = new Room("Eerily quiet guard office - sword and health potion");
+        sewer1 = new Room("Grim grotesque sewer");
+        sewer2 = new Room("Grim grotesque sewer - Enemy spider");
+        artifactRoom = new Room("Curious looking artifact room - invis potion and health potion");
+        mainHall = new Room("Main hall - 3 gaurds");
+
 
         // initialise room exits
-        outside.setExit("east", theatre);
-        outside.setExit("south", lab);
-        outside.setExit("west", pub);
+        cell.setExit("south", hall);
 
-        theatre.setExit("west", outside);
+        hall.setExit("south", mainHall);
+        hall.setExit("east", gaurdOffice);
+        hall.setExit("west", diningHall);
+        hall.setExit("down", sewer1);
 
-        pub.setExit("east", outside);
+        diningHall.setExit("east", hall);
 
-        lab.setExit("north", outside);
-        lab.setExit("east", office);
+        gaurdOffice.setExit("west", hall);
 
-        office.setExit("west", lab);
+        sewer1.setExit("up", hall);
+        sewer1.setExit("south", sewer2);
+
+        sewer2.setExit("north", sewer1);
+        sewer2.setExit("up", artifactRoom);
+
+        artifactRoom.setExit("down", sewer2);
+        artifactRoom.setExit("west", mainHall);
+
+        mainHall.setExit("north", hall);
+        mainHall.setExit("east", artifactRoom);
 
         // create the player character and start outside
-        player = new Character("player", outside);
+        player = new Character("player", cell);
     }
 
     public void play() {
@@ -77,7 +93,7 @@ public class ZorkULGame extends Application {
 
     private void printWelcome() {
         System.out.println();
-        System.out.println("Welcome to the University adventure!");
+        System.out.println("You've been locked away... Try escape!");
         System.out.println("Type 'help' if you need help.");
         System.out.println();
         System.out.println(player.getCurrentRoom().getLongDescription());
@@ -138,7 +154,7 @@ public class ZorkULGame extends Application {
 
     public static void main(String[] args) {
         ZorkULGame game = new ZorkULGame();
-        launch();
+        //launch();
         game.play();
     }
 }
