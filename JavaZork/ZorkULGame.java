@@ -15,13 +15,25 @@ emphasizing exploration and simple command-driven gameplay
 
 import java.util.Scanner;
 
-public class ZorkULGame {
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.stage.Stage;
+
+public class ZorkULGame extends Application {
     private Parser parser;
     private Character player;
 
     public ZorkULGame() {
         createRooms();
         parser = new Parser();
+    }
+
+    @Override
+    public void start(Stage stage) {
+        stage.setScene(new Scene(new Label("Hello JavaFX!"), 300, 200));
+        stage.show();
+
     }
 
     private void createRooms() {
@@ -126,6 +138,7 @@ public class ZorkULGame {
 
     public static void main(String[] args) {
         ZorkULGame game = new ZorkULGame();
+        launch();
         game.play();
     }
 }
