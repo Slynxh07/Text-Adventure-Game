@@ -129,7 +129,7 @@ public class ZorkULGame /*extends Application */ {
     }
 
     private void printHelp() {
-        System.out.println("You are lost. You are alone. You wander around the university.");
+        System.out.println("You are lost. You are alone. You navigate the chilling prison.");
         System.out.print("Your command words are: ");
         parser.showCommands();
     }

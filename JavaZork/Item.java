@@ -1,4 +1,4 @@
-public class Item {
+abstract public class Item {
     private String description;
     private String name;
     private String location;
@@ -50,4 +50,6 @@ public class Item {
     public void setVisible(boolean visible) {
         isVisible = visible;
     }
+
+    abstract public void use();
 }

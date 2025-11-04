@@ -1,10 +1,14 @@
+import java.util.ArrayList;
+
 public class Character {
     private String name;
     private Room currentRoom;
+    private ArrayList<Item> inventory;
 
     public Character(String name, Room startingRoom) {
         this.name = name;
         this.currentRoom = startingRoom;
+        inventory = new ArrayList<Item>();
     }
 
     public String getName() {
@@ -27,5 +31,9 @@ public class Character {
         } else {
             System.out.println("You can't go that way!");
         }
+    }
+
+    public void inflictEffect(String effect) {
+        System.out.println(name + "has been inflicted with " + effect);
     }
 }
