@@ -17,7 +17,7 @@ public class Potion extends Item {
     }
 
     @Override
-    public void use() {
-
+    public void use(Character character) {
+        character.inflictEffect(effect);
     }
 }

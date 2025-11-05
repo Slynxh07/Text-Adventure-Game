@@ -11,7 +11,9 @@ public class CommandWords {
         validCommands.put("help", "Show help");
         validCommands.put("look", "Look around");
         validCommands.put("eat", "Eat something");
-        validCommands.put("climb", "Climb to another room");
+        validCommands.put("take", "Place an item into your inventory");
+        validCommands.put("drop", "Drop and item from your inventory");
+        validCommands.put("inventory", "Display inventory");
     }
 
     public boolean isCommand(String commandWord) {

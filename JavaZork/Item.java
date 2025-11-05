@@ -51,5 +51,5 @@ abstract public class Item {
         isVisible = visible;
     }
 
-    abstract public void use();
+    abstract public void use(Character character);
 }

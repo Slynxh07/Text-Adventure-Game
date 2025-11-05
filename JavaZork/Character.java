@@ -3,12 +3,12 @@ import java.util.ArrayList;
 public class Character {
     private String name;
     private Room currentRoom;
-    private ArrayList<Item> inventory;
+    private int health;
 
     public Character(String name, Room startingRoom) {
         this.name = name;
         this.currentRoom = startingRoom;
-        inventory = new ArrayList<Item>();
+        health = 100;
     }
 
     public String getName() {
@@ -35,5 +35,9 @@ public class Character {
 
     public void inflictEffect(String effect) {
         System.out.println(name + "has been inflicted with " + effect);
+    }
+
+    void takeDamage(int damage) {
+        health -= damage;
     }
 }
