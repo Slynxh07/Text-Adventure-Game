@@ -16,6 +16,7 @@ public class CommandWords {
         validCommands.put("inventory", "Display inventory");
         validCommands.put("items", "Display items in the room");
         validCommands.put("sword", "Attack enemy");
+        validCommands.put("heal", "Use a health potion");
     }
 
     public boolean isCommand(String commandWord) {

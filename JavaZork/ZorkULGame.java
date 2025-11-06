@@ -24,7 +24,7 @@ import javafx.stage.Stage;
  */
 
 public class ZorkULGame /*extends Application */ {
-    private Parser parser;
+    final private Parser parser;
     private Player player;
 
     private Potion healthPotion;
@@ -47,9 +47,9 @@ public class ZorkULGame /*extends Application */ {
  */
 
     private void init() {
-        healthPotion = new Potion("Elixir", "heals +30% of max health", "healing");
-        invisPotion = new Potion("Nullis", "Makes user invisible to npcs for 1 room", "invisibility");
-        sword = new Sword("Sword", "Attack enemies with \"use\"");
+        healthPotion = new Potion("elixir", "heals +30% of max health", Effects.HEALING);
+        invisPotion = new Potion("nullis", "Makes user invisible to npcs for 1 room", Effects.IVISABILITY);
+        sword = new Sword("sword", "Attack enemies with \"use\"");
 
         items.put(healthPotion.getName(), healthPotion);
         items.put(invisPotion.getName(), invisPotion);
@@ -145,6 +145,9 @@ public class ZorkULGame /*extends Application */ {
                 break;
             case "sword":
                 attack(command);
+                break;
+            case "heal":
+                heal(command);
                 break;
             case "quit":
                 if (command.hasSecondWord()) {
@@ -247,6 +250,20 @@ public class ZorkULGame /*extends Application */ {
             return;
         }
         System.out.println(player.displayInventory());
+    }
+
+    private void heal(Command command) {
+        if (!player.checkInventory(healthPotion)) {
+            System.out.println("You don't have a health potion, maybe you can find one...");
+        }
+        if (command.hasSecondWord()) {
+            System.out.println("You shouldn't heal anyone else bucko...");
+            return;
+        }
+        if (player.getHealth() >= 100) {
+            System.out.println("Lock in unc, you're full health");
+        }
+        healthPotion.use(player);
     }
 
     public static void main(String[] args) {

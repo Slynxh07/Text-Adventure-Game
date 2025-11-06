@@ -1,8 +1,8 @@
 public class Potion extends Item {
-    String effect;
+    Effects effect;
     boolean full;
 
-    public Potion(String name, String description, String effect) {
+    public Potion(String name, String description, Effects effect) {
         super(name, description);
         this.effect = effect;
         this.full = true;
