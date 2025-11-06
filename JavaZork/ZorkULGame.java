@@ -14,6 +14,7 @@ emphasizing exploration and simple command-driven gameplay
 */
 
 import java.util.Scanner;
+import java.util.HashMap;
 
 /*
 import javafx.application.Application;
@@ -28,9 +29,13 @@ public class ZorkULGame /*extends Application */ {
 
     private Potion healthPotion;
     private Potion invisPotion;
+    private Sword sword;
+
+    private HashMap<String, Item> items;
 
     public ZorkULGame() {
-        createRooms();
+        items = new HashMap<>();
+        init();
         parser = new Parser();
     }
 /*
@@ -41,21 +46,26 @@ public class ZorkULGame /*extends Application */ {
     }
  */
 
-    private void createRooms() {
-        healthPotion = new Potion("Health potion", "heals +30% of max health", "healing");
-        invisPotion = new Potion("Invisibility potion", "Makes user invisible to npcs for 1 room", "invisibility");
+    private void init() {
+        healthPotion = new Potion("Elixir", "heals +30% of max health", "healing");
+        invisPotion = new Potion("Nullis", "Makes user invisible to npcs for 1 room", "invisibility");
+        sword = new Sword("Sword", "Attack enemies with \"use\"");
+
+        items.put(healthPotion.getName(), healthPotion);
+        items.put(invisPotion.getName(), invisPotion);
+        items.put(sword.getName(), sword);
 
         Room cell, hall, diningHall, guardOffice, sewer1, sewer2, artifactRoom, mainHall;
 
         // create rooms
-        cell = new Room("Dark dreary cell - lock picks 3x", healthPotion);
+        cell = new Room("Dark dreary cell - lock picks 3x");
         hall = new Room("Cold empty hall - sewer entrance");
         diningHall = new Room("Disgusting rodent-infested dining hall - npc with warning");
-        guardOffice = new Room("Eerily quiet guard office - sword and health potion");
+        guardOffice = new Room("Eerily quiet guard office - sword and health potion", healthPotion, sword);
         sewer1 = new Room("Grim grotesque sewer");
         sewer2 = new Room("Grim grotesque sewer - Enemy spider");
-        artifactRoom = new Room("Curious looking artifact room - invis potion and health potion");
-        mainHall = new Room("Main hall - 3 guards");
+        artifactRoom = new Room("Curious looking artifact room - invis potion and health potion", invisPotion, healthPotion);
+        mainHall = new Room("Main hall - 3 guards", new Enemy("Bob"));
 
 
         // initialise room exits
@@ -130,6 +140,12 @@ public class ZorkULGame /*extends Application */ {
             case "inventory":
                 showInventory(command);
                 break;
+            case "items":
+                System.out.println(player.getCurrentRoom().displayItems());
+                break;
+            case "sword":
+                attack(command);
+                break;
             case "quit":
                 if (command.hasSecondWord()) {
                     System.out.println("Quit what?");
@@ -168,6 +184,25 @@ public class ZorkULGame /*extends Application */ {
         }
     }
 
+    private void attack(Command command) {
+        if (!player.checkInventory(sword)) {
+            System.out.println("Sword is not in inventory");
+            return;
+        }
+
+        if (!command.hasSecondWord()) {
+            System.out.println("Use sword on who?");
+            return;
+        }
+
+        String target = command.getSecondWord();
+        if (player.getCurrentRoom().getCharacter() != null && target.equals(player.getCurrentRoom().getCharacter().getName())) {
+            sword.use(player.getCurrentRoom().getCharacter());
+        } else {
+            System.out.println("Target not found in this room...");
+        }
+    }
+
     private void take(Command command) {
         if (!command.hasSecondWord()) {
             System.out.println("Take what?");
@@ -176,21 +211,12 @@ public class ZorkULGame /*extends Application */ {
 
         String itemName = command.getSecondWord();
 
-        Item item = null;
-
-        switch (itemName) {
-            case "health-potion":
-                item = healthPotion;
-                break;
-            default:
-                System.out.println("No such item exists!");
-                return;
-        }
+        Item item = items.get(itemName);
 
         if (player.getCurrentRoom().removeItem(item)) {
             player.takeItem(item);
         } else {
-            System.out.println("There is no " + item.getName() + " here");
+            System.out.println("There is no " + itemName + " here");
             return;
         }
         System.out.println("You picked up an item");
@@ -203,21 +229,12 @@ public class ZorkULGame /*extends Application */ {
 
         String itemName = command.getSecondWord();
 
-        Item item = null;
-
-        switch (itemName) {
-            case "health-potion":
-                item = healthPotion;
-                break;
-            default:
-                System.out.println("No such item exists!");
-                return;
-        }
+        Item item = items.get(itemName);
 
         if (player.dropItem(item)) {
             player.getCurrentRoom().addItem(item);
         } else {
-            System.out.println("There is no " + item.getName() + " in your inventory");
+            System.out.println("There is no " + itemName + " in your inventory");
             System.out.println("See your inventory with: \"inventory\"");
             return;
         }
@@ -229,7 +246,7 @@ public class ZorkULGame /*extends Application */ {
             System.out.println("Just type inventory man...");
             return;
         }
-        player.displayInventory();
+        System.out.println(player.displayInventory());
     }
 
     public static void main(String[] args) {

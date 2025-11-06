@@ -2,17 +2,37 @@ import java.util.ArrayList;
 
 public class Player extends Character {
     private ArrayList<Item> inventory;
+    private Room currentRoom;
 
     public Player(String name, Room startingRoom) {
-        super(name, startingRoom);
+        super(name);
         inventory = new ArrayList<Item>();
+        this.currentRoom = startingRoom;
     }
 
-    void takeItem(Item item) {
+    public Room getCurrentRoom() {
+        return currentRoom;
+    }
+
+    public void setCurrentRoom(Room room) {
+        this.currentRoom = room;
+    }
+
+    public void move(String direction) {
+        Room nextRoom = currentRoom.getExit(direction);
+        if (nextRoom != null) {
+            currentRoom = nextRoom;
+            System.out.println("You moved to: " + currentRoom.getDescription());
+        } else {
+            System.out.println("You can't go that way!");
+        }
+    }
+
+    public void takeItem(Item item) {
         inventory.add(item);
     }
 
-    boolean dropItem(Item item) {
+    public boolean dropItem(Item item) {
         int index = inventory.indexOf(item);
         if (index < 0) {
             System.out.println("Item no in inventory...");
@@ -22,11 +42,21 @@ public class Player extends Character {
         return true;
     }
 
-    void displayInventory() {
+    public String displayInventory() {
+        if (inventory == null || inventory.isEmpty()) {
+            return "Your inventory is empty, take items with \"take\"";
+        }
         String str = "Current inventory: ";
         for (Item item : inventory) {
             str += String.format("%s ", item.getName());
         }
-        System.out.println(str);
+        return str;
+    }
+
+    public boolean checkInventory(Item item) {
+        if (inventory.contains(item)) {
+            return true;
+        }
+        return false;
     }
 }
