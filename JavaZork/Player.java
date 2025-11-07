@@ -54,9 +54,6 @@ public class Player extends Character {
     }
 
     public boolean checkInventory(Item item) {
-        if (inventory.contains(item)) {
-            return true;
-        }
-        return false;
+        return inventory.contains(item);
     }
 }

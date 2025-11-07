@@ -31,10 +31,12 @@ public class ZorkULGame /*extends Application */ {
     private Potion invisPotion;
     private Sword sword;
 
-    private HashMap<String, Item> items;
+    final private HashMap<String, Item> items;
+    final private HashMap<String, Room> rooms;
 
     public ZorkULGame() {
         items = new HashMap<>();
+        rooms = new HashMap<>();
         init();
         parser = new Parser();
     }
@@ -55,11 +57,11 @@ public class ZorkULGame /*extends Application */ {
         items.put(invisPotion.getName(), invisPotion);
         items.put(sword.getName(), sword);
 
-        Room cell, hall, diningHall, guardOffice, sewer1, sewer2, artifactRoom, mainHall;
+        Room cell, hallway, diningHall, guardOffice, sewer1, sewer2, artifactRoom, mainHall;
 
         // create rooms
         cell = new Room("Dark dreary cell - lock picks 3x");
-        hall = new Room("Cold empty hall - sewer entrance");
+        hallway = new Room("Cold empty hallway - sewer entrance");
         diningHall = new Room("Disgusting rodent-infested dining hall - npc with warning");
         guardOffice = new Room("Eerily quiet guard office - sword and health potion", healthPotion, sword);
         sewer1 = new Room("Grim grotesque sewer");
@@ -69,19 +71,19 @@ public class ZorkULGame /*extends Application */ {
 
 
         // initialise room exits
-        cell.setExit("south", hall);
+        cell.setExit("south", hallway);
 
-        hall.setExit("south", mainHall);
-        hall.setExit("east", guardOffice);
-        hall.setExit("west", diningHall);
-        hall.setExit("down", sewer1);
-        hall.setExit("north", cell);
+        hallway.setExit("south", mainHall);
+        hallway.setExit("east", guardOffice);
+        hallway.setExit("west", diningHall);
+        hallway.setExit("down", sewer1);
+        hallway.setExit("north", cell);
 
-        diningHall.setExit("east", hall);
+        diningHall.setExit("east", hallway);
 
-        guardOffice.setExit("west", hall);
+        guardOffice.setExit("west", hallway);
 
-        sewer1.setExit("up", hall);
+        sewer1.setExit("up", hallway);
         sewer1.setExit("south", sewer2);
 
         sewer2.setExit("north", sewer1);
@@ -90,8 +92,17 @@ public class ZorkULGame /*extends Application */ {
         artifactRoom.setExit("down", sewer2);
         artifactRoom.setExit("west", mainHall);
 
-        mainHall.setExit("north", hall);
+        mainHall.setExit("north", hallway);
         mainHall.setExit("east", artifactRoom);
+
+        rooms.put("cell", cell);
+        rooms.put("hallway", hallway);
+        rooms.put("dinning-hall", diningHall);
+        rooms.put("office", guardOffice);
+        rooms.put("sewer1", sewer1);
+        rooms.put("sewer2", sewer2);
+        rooms.put("artifact-room", artifactRoom);
+        rooms.put("main-hall", mainHall);
 
         // create the player character and start outside
         player = new Player("player", cell);
@@ -149,6 +160,12 @@ public class ZorkULGame /*extends Application */ {
             case "heal":
                 heal(command);
                 break;
+            case "cheats":
+                cheat(command);
+                break;
+            case "teleport":
+                teleport(command);
+                break;
             case "quit":
                 if (command.hasSecondWord()) {
                     System.out.println("Quit what?");
@@ -203,6 +220,31 @@ public class ZorkULGame /*extends Application */ {
             sword.use(player.getCurrentRoom().getCharacter());
         } else {
             System.out.println("Target not found in this room...");
+        }
+    }
+
+    private void cheat(Command command) {
+        if (!command.hasSecondWord()) {
+            System.out.println(ZorkUL.isCheats() ? "Cheats enabled" : "Cheats disabled");
+            return;
+        }
+
+        String setter = command.getSecondWord();
+
+        switch (setter) {
+            case "enable":
+                ZorkUL.setCheats(true);
+                parser.enableCheats();
+                System.out.println("Enabled Cheats");
+                break;
+            case "disable":
+                ZorkUL.setCheats(false);
+                parser.disableCheats();
+                System.out.println("Disabled Cheats");
+                break;
+            default:
+                System.out.println("I don't understand what you want...");
+                break;
         }
     }
 
@@ -264,6 +306,23 @@ public class ZorkULGame /*extends Application */ {
             System.out.println("Lock in unc, you're full health");
         }
         healthPotion.use(player);
+    }
+
+    private void teleport(Command command) {
+        if (!command.hasSecondWord()) {
+            System.out.println("Teleport where?");
+            return;
+        }
+
+        String location = command.getSecondWord();
+
+        Room room = rooms.get(location);
+
+        if (room != null) {
+            player.setCurrentRoom(room);
+            return;
+        }
+        System.out.println("Room doesn't exist...");
     }
 
     public static void main(String[] args) {

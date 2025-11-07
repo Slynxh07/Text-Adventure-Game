@@ -17,6 +17,15 @@ public class CommandWords {
         validCommands.put("items", "Display items in the room");
         validCommands.put("sword", "Attack enemy");
         validCommands.put("heal", "Use a health potion");
+        validCommands.put("cheats", "Enable/Disable cheats");
+    }
+
+    public void enableCheats() {
+        validCommands.put("teleport", "Teleport to desired room");
+    }
+
+    public void disableCheats() {
+        validCommands.remove("teleport");
     }
 
     public boolean isCommand(String commandWord) {

@@ -34,4 +34,11 @@ public class Parser {
     public void showCommands() {
         commands.showAll();
     }
+
+    public void enableCheats() {
+        commands.enableCheats();
+    }
+    public void disableCheats() {
+        commands.disableCheats();
+    }
 }
