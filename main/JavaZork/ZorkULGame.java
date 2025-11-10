@@ -13,17 +13,9 @@ Overall, it recreates the classic Zork interactive fiction experience with a uni
 emphasizing exploration and simple command-driven gameplay
 */
 
-import java.util.Scanner;
 import java.util.HashMap;
 
-/*
-import javafx.application.Application;
-import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.stage.Stage;
- */
-
-public class ZorkULGame /*extends Application */ {
+public class ZorkULGame implements Runnable {
     final private Parser parser;
     private Player player;
 
@@ -40,13 +32,6 @@ public class ZorkULGame /*extends Application */ {
         init();
         parser = new Parser();
     }
-/*
-    @Override
-    public void start(Stage stage) {
-        stage.setScene(new Scene(new Label("Hello JavaFX!"), 300, 200));
-        stage.show();items
-    }
- */
 
     private void init() {
         healthPotion = new Potion("elixir", "heals +30% of max health", Effects.HEALING);
@@ -186,7 +171,7 @@ public class ZorkULGame /*extends Application */ {
         parser.showCommands();
     }
 
-    private void goRoom(Command command) {
+    protected void goRoom(Command command) {
         if (!command.hasSecondWord()) {
             System.out.println("Go where?");
             return;
@@ -328,9 +313,8 @@ public class ZorkULGame /*extends Application */ {
         System.out.println("Room doesn't exist...");
     }
 
-    public static void main(String[] args) {
-        ZorkULGame game = new ZorkULGame();
-        //launch();
-        game.play();
+    @Override
+    public void run() {
+        play();
     }
 }
