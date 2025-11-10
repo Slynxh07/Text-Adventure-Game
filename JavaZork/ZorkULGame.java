@@ -44,7 +44,7 @@ public class ZorkULGame /*extends Application */ {
     @Override
     public void start(Stage stage) {
         stage.setScene(new Scene(new Label("Hello JavaFX!"), 300, 200));
-        stage.show();
+        stage.show();items
     }
  */
 
@@ -218,6 +218,8 @@ public class ZorkULGame /*extends Application */ {
         String target = command.getSecondWord();
         if (player.getCurrentRoom().getCharacter() != null && target.equals(player.getCurrentRoom().getCharacter().getName())) {
             sword.use(player.getCurrentRoom().getCharacter());
+            System.out.println("Used sword on " + target);
+            System.out.println(target + " health: " + player.getCurrentRoom().getCharacter().getHealth());
         } else {
             System.out.println("Target not found in this room...");
         }
@@ -320,6 +322,7 @@ public class ZorkULGame /*extends Application */ {
 
         if (room != null) {
             player.setCurrentRoom(room);
+            System.out.println(player.getCurrentRoom().getLongDescription());
             return;
         }
         System.out.println("Room doesn't exist...");

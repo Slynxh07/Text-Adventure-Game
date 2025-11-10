@@ -7,4 +7,9 @@ public class Enemy extends Character {
         enemyId = count;
         count++;
     }
+
+    @Override
+    public void die() {
+        
+    }
 }

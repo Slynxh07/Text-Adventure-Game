@@ -1,21 +1,25 @@
 import java.util.ArrayList;
 
-public class Character {
+abstract public class Character {
     private String name;
     private int health;
     private boolean isVisable;
+    protected boolean alive;
 
     public Character(String name) {
         this.name = name;
         health = 100;
         isVisable = true;
+        alive = true;
     }
 
     public String getName() {
+        if (!alive) return null;
         return name;
     }
 
     public int getHealth() {
+        if (!alive) return -420;
         return health;
     }
 
@@ -36,4 +40,8 @@ public class Character {
     void takeDamage(int damage) {
         health -= damage;
     }
+
+    abstract public void die();
+
+    public boolean isAlive() { return alive; }
 }

@@ -56,4 +56,9 @@ public class Player extends Character {
     public boolean checkInventory(Item item) {
         return inventory.contains(item);
     }
+
+    @Override
+    public void die() {
+        alive = false;
+    }
 }
