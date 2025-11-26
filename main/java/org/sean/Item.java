@@ -2,7 +2,7 @@ package org.sean;
 
 import java.io.Serializable;
 
-abstract public class Item implements Storable, Serializable {
+public class Item implements Storable, Serializable {
     private String description;
     private String name;
     private String location;
@@ -59,6 +59,4 @@ abstract public class Item implements Storable, Serializable {
     public void setVisible(boolean visible) {
         isVisible = visible;
     }
-
-    abstract public void use(Character character);
 }

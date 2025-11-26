@@ -1,6 +1,6 @@
 package org.sean;
 
-public class Potion extends Item {
+public class Potion extends Item implements Usable {
     Effects effect;
     boolean full;
 
@@ -20,6 +20,8 @@ public class Potion extends Item {
 
     @Override
     public void use(Character character) {
-        character.inflictEffect(effect);
+        if (character instanceof Player) {
+            ((Player) character).inflictEffect(effect);
+        }
     }
 }

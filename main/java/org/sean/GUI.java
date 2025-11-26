@@ -1,6 +1,8 @@
 package org.sean;
 
 import javafx.application.Application;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -18,6 +20,9 @@ public class GUI extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(GUI.class.getResource("gui-view.fxml"));
+        Scene scene = new Scene(fxmlLoader.load(), 320, 240);
+        /*
         Button north = new Button("North");
         Button south = new Button("South");
         Button east = new Button("East");
@@ -56,6 +61,7 @@ public class GUI extends Application {
         stage.setTitle("Button Test");
         stage.setScene(mainScene);
         stage.show();
+         */
     }
 
     public static void main(String[] args) {

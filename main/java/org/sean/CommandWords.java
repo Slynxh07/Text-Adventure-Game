@@ -20,6 +20,8 @@ public class CommandWords {
         validCommands.put("sword", "Attack enemy");
         validCommands.put("heal", "Use a health potion");
         validCommands.put("cheats", "Enable/Disable cheats");
+        validCommands.put("lockpick", "Use lock pick to pick locks");
+        validCommands.put("nullis", "Use invisibility potion");
     }
 
     public void enableCheats() {

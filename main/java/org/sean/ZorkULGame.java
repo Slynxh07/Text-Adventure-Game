@@ -25,6 +25,7 @@ public class ZorkULGame implements Runnable {
     private Potion healthPotion;
     private Potion invisPotion;
     private Sword sword;
+    private Lockpick lockpick;
 
     final private HashMap<String, Item> items;
     final private HashMap<String, Room> rooms;
@@ -38,26 +39,30 @@ public class ZorkULGame implements Runnable {
     }
 
     private void init() {
-        healthPotion = new Potion("elixir", "heals +30% of max health", Effects.HEALING);
-        invisPotion = new Potion("nullis", "Makes user invisible to npcs for 1 room", Effects.IVISABILITY);
-        sword = new Sword("sword", "Attack enemies with \"use\"");
+        healthPotion = new Potion("elixir", "heals +30% of max health, use with \"heal\"", Effects.HEALING);
+        invisPotion = new Potion("nullis", "Makes user invisible to npcs for 1 room, use with \"nullis\"", Effects.IVISABILITY);
+        sword = new Sword("sword", "Attack enemies with \"sword + enemy name\"");
+        lockpick = new Lockpick("lockpick", "Used to pick locks");
+
 
         items.put(healthPotion.getName(), healthPotion);
         items.put(invisPotion.getName(), invisPotion);
         items.put(sword.getName(), sword);
+        items.put(lockpick.getName(), lockpick);
 
-        Room cell, hallway, diningHall, guardOffice, sewer1, sewer2, artifactRoom, mainHall;
+        Room cell, hallway, diningHall, guardOffice, sewer1, sewer2, artifactRoom, mainHall, courtyard, escape;
 
         // create rooms
-        cell = new Room("Dark dreary cell - lock picks 3x");
-        hallway = new Room("Cold empty hallway - sewer entrance");
-        diningHall = new Room("Disgusting rodent-infested dining hall - npc with warning");
-        guardOffice = new Room("Eerily quiet guard office - sword and health potion", healthPotion, sword);
-        sewer1 = new Room("Grim grotesque sewer");
-        sewer2 = new Room("Grim grotesque sewer - org.sean.zork.Enemy spider");
-        artifactRoom = new Room("Curious looking artifact room - invis potion and health potion", invisPotion, healthPotion);
-        mainHall = new Room("Main hall - 3 guards", new Enemy("Bob"));
-
+        cell = new Room("Dark dreary cell - lock picks 3x", false, lockpick, lockpick, lockpick);
+        hallway = new Room("Cold empty hallway - sewer entrance", true);
+        diningHall = new Room("Disgusting rodent-infested dining hall - npc with warning", false);
+        guardOffice = new Room("Eerily quiet guard office - sword and health potion", true, healthPotion, sword);
+        sewer1 = new Room("Grim grotesque sewer", false);
+        sewer2 = new Room("Grim grotesque sewer - Enemy spider", false);
+        artifactRoom = new Room("Curious looking artifact room - invis potion and health potion", false, invisPotion, healthPotion);
+        mainHall = new Room("Main hall - 3 guards", true, new Enemy("Bob"));
+        courtyard = new Room("Courtyard - guard", false, new Enemy("John"));
+        escape = new Room("Final Room", false);
 
         // initialise room exits
         cell.setExit("south", hallway);
@@ -83,6 +88,10 @@ public class ZorkULGame implements Runnable {
 
         mainHall.setExit("north", hallway);
         mainHall.setExit("east", artifactRoom);
+        mainHall.setExit("west", courtyard);
+
+        courtyard.setExit("east", mainHall);
+        courtyard.setExit("south", escape);
 
         rooms.put("cell", cell);
         rooms.put("hallway", hallway);
@@ -92,21 +101,24 @@ public class ZorkULGame implements Runnable {
         rooms.put("sewer2", sewer2);
         rooms.put("artifact-room", artifactRoom);
         rooms.put("main-hall", mainHall);
+        rooms.put("courtyard", courtyard);
+        rooms.put("escape", escape);
 
         // create the player character and start outside
         player = new Player("sean", cell);
     }
 
     public void play() {
-        deSeralize();
+        //deSeralize();
         printWelcome();
 
         boolean finished = false;
         while (!finished) {
+            player.inCombat = player.getCurrentRoom().containsEnemy() && player.isVisable();
             Command command = parser.getCommand();
             finished = processCommand(command);
         }
-        seralize();
+        //seralize();
         System.out.println("Thank you for playing. Goodbye.");
     }
 
@@ -131,7 +143,8 @@ public class ZorkULGame implements Runnable {
                 printHelp();
                 break;
             case "go":
-                goRoom(command);
+                if (!player.inCombat) goRoom(command);
+                else System.out.println("Can't leave room while in combat");
                 break;
             case "take":
                 take(command);
@@ -157,8 +170,14 @@ public class ZorkULGame implements Runnable {
             case "teleport":
                 teleport(command);
                 break;
-            case "pick":
+            case "kill":
+                kill(command);
+                break;
+            case "lockpick":
                 picklock(command);
+                break;
+            case "nullis":
+                nullis(command);
                 break;
             case "quit":
                 if (command.hasSecondWord()) {
@@ -192,10 +211,24 @@ public class ZorkULGame implements Runnable {
 
         if (nextRoom == null) {
             System.out.println("There is no door!");
+        } else if (nextRoom.isLocked()) {
+            System.out.println("Door is locked...");
         } else {
             player.setCurrentRoom(nextRoom);
             System.out.println(player.getCurrentRoom().getLongDescription());
         }
+    }
+
+    private void nullis(Command command) {
+        if (!player.checkInventory(invisPotion)) {
+            System.out.println("You don't have an invisibility potion, maybe you can find one...");
+            return;
+        }
+        if (command.hasSecondWord()) {
+            System.out.println("You should only use nullis on yourself...");
+            return;
+        }
+        invisPotion.use(player);
     }
 
     private void attack(Command command) {
@@ -241,6 +274,13 @@ public class ZorkULGame implements Runnable {
             default:
                 System.out.println("I don't understand what you want...");
                 break;
+        }
+    }
+
+    private void kill(Command command) {
+        if (!command.hasSecondWord()) {
+            System.out.println("Kill who?");
+            return;
         }
     }
 
@@ -293,6 +333,7 @@ public class ZorkULGame implements Runnable {
     private void heal(Command command) {
         if (!player.checkInventory(healthPotion)) {
             System.out.println("You don't have a health potion, maybe you can find one...");
+            return;
         }
         if (command.hasSecondWord()) {
             System.out.println("You shouldn't heal anyone else bucko...");
@@ -305,13 +346,29 @@ public class ZorkULGame implements Runnable {
     }
 
     private void picklock(Command command) {
+        if (!player.checkInventory(lockpick)) {
+            System.out.println("You don't have a lockpick in your inventory");
+            return;
+        }
         if (!command.hasSecondWord()) {
             System.out.println("Pick what?");
             return;
         }
 
-        if (GameLib.INSTANCE.runGame()) {
-            //door.unlock
+        String direction = command.getSecondWord();
+
+        Room nextRoom = player.getCurrentRoom().getExit(direction);
+
+        if (nextRoom == null) {
+            System.out.println("There is no door!");
+        } else if (!nextRoom.isLocked()) {
+            System.out.println("Door is already unlocked...");
+        } else if (GameLib.INSTANCE.runGame()) {
+            System.out.println("Success! You picked the lock");
+            nextRoom.unlock();
+        } else {
+            System.out.println("Oh no! Your pick broke...");
+            player.removeItem(lockpick);
         }
     }
 
@@ -346,7 +403,6 @@ public class ZorkULGame implements Runnable {
         try (ObjectInputStream in = new ObjectInputStream(new FileInputStream("player.ser"))) {
             Player deserializedPlayer = (Player) in.readObject();
             System.out.println("Object has been deserialized:");
-            System.out.println(deserializedPlayer.displayInventory());
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }

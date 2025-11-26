@@ -10,30 +10,44 @@ public class Room implements Serializable {
     private Map<String, Room> exits; // Map direction to neighboring org.sean.zork.Room
     private ArrayList<Item> items;
     private Character npc;
+    private boolean locked;
 
-    public Room(String description) {
+    public Room(String description, boolean locked) {
         this.description = description;
+        this.locked = locked;
         exits = new HashMap<>();
         this.items = new ArrayList<Item>();
     }
 
-    public Room(String description, Character character) {
-        this(description);
+    public Room(String description, boolean locked, Character character) {
+        this(description, locked);
         this.npc = character;
     }
 
-    public Room(String description, Item... items) {
-        this(description);
+    public Room(String description, boolean locked, Item... items) {
+        this(description, locked);
         for (Item item : items) {
             this.items.add(item);
         }
     }
 
-    public Room(String description, Character character, Item... items) {
-        this(description, character);
+    public Room(String description, boolean locked, Character character, Item... items) {
+        this(description, locked, character);
         for (Item item : items) {
             this.items.add(item);
         }
+    }
+
+    public boolean containsEnemy() {
+        return npc != null && npc instanceof Enemy;
+    }
+
+    public void unlock() {
+        this.locked = false;
+    }
+
+    public boolean isLocked() {
+        return this.locked;
     }
 
     public Character getCharacter() {

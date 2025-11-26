@@ -4,16 +4,18 @@ import java.io.Serializable;
 
 abstract public class Character implements Serializable {
     private String name;
-    private int health;
-    private boolean isVisable;
+    protected int health;
+    protected boolean visable;
     protected boolean alive;
 
     public Character(String name) {
         this.name = name;
         health = 100;
-        isVisable = true;
+        visable = true;
         alive = true;
     }
+
+    public boolean isVisable() { return visable; }
 
     public String getName() {
         if (!alive) return null;
@@ -23,20 +25,6 @@ abstract public class Character implements Serializable {
     public int getHealth() {
         if (!alive) return -420;
         return health;
-    }
-
-    public void inflictEffect(Effects effect) {
-        switch (effect) {
-            case HEALING:
-                health += 30;
-                if (health > 100) health = 100;
-                break;
-            case IVISABILITY:
-                isVisable = false;
-                break;
-            case POISION:
-                break;
-        }
     }
 
     void takeDamage(int damage) {

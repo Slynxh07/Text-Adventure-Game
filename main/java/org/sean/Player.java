@@ -6,9 +6,15 @@ public class Player extends Character {
     private static final long serialVersionUID = 1L;
     private ArrayList<Item> inventory;
     private Room currentRoom;
+    public boolean inCombat;
+    static int roomCount;
+    static int invisLimit;
 
     public Player(String name, Room startingRoom) {
         super(name);
+        inCombat = false;
+        roomCount = 0;
+        invisLimit = 0;
         inventory = new ArrayList<Item>();
         this.currentRoom = startingRoom;
     }
@@ -18,16 +24,10 @@ public class Player extends Character {
     }
 
     public void setCurrentRoom(Room room) {
+        roomCount++;
         this.currentRoom = room;
-    }
-
-    public void move(String direction) {
-        Room nextRoom = currentRoom.getExit(direction);
-        if (nextRoom != null) {
-            currentRoom = nextRoom;
-            System.out.println("You moved to: " + currentRoom.getDescription());
-        } else {
-            System.out.println("You can't go that way!");
+        if (!isVisable() && roomCount > invisLimit) {
+            visable = true;
         }
     }
 
@@ -43,6 +43,25 @@ public class Player extends Character {
         }
         inventory.remove(index);
         return true;
+    }
+
+    public void inflictEffect(Effects effect) {
+        switch (effect) {
+            case HEALING:
+                health += 30;
+                if (health > 100) health = 100;
+                break;
+            case IVISABILITY:
+                visable = false;
+                invisLimit = roomCount;
+                break;
+            case POISION:
+                break;
+        }
+    }
+
+    public void removeItem(Item item) {
+        inventory.remove(item);
     }
 
     public String displayInventory() {
