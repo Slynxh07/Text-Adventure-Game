@@ -6,6 +6,16 @@ public class ZorkUL {
 
     private static boolean cheats = false;
 
+    private static volatile boolean running = true;
+
+    public static void quit() {
+         running = false;
+    }
+
+    public static boolean isRunning() {
+        return running;
+    }
+
     public static void setCheats(boolean setter) {
         cheats = setter;
     }

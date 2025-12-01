@@ -5,18 +5,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Room implements Serializable {
+public class Room {
     private String description;
     private Map<String, Room> exits; // Map direction to neighboring org.sean.zork.Room
-    private ArrayList<Item> items;
     private Character npc;
     private boolean locked;
+    ArrayList<Item> items;
 
     public Room(String description, boolean locked) {
+        items = new ArrayList<Item>();
         this.description = description;
         this.locked = locked;
         exits = new HashMap<>();
-        this.items = new ArrayList<Item>();
     }
 
     public Room(String description, boolean locked, Character character) {
@@ -27,14 +27,14 @@ public class Room implements Serializable {
     public Room(String description, boolean locked, Item... items) {
         this(description, locked);
         for (Item item : items) {
-            this.items.add(item);
+            addItem(item);
         }
     }
 
     public Room(String description, boolean locked, Character character, Item... items) {
         this(description, locked, character);
         for (Item item : items) {
-            this.items.add(item);
+            addItem(item);
         }
     }
 
@@ -62,19 +62,6 @@ public class Room implements Serializable {
         exits.put(direction, neighbor);
     }
 
-    public void addItem(Item item) {
-        items.add(item);
-    }
-
-    public boolean removeItem(Item item) {
-        int index = items.indexOf(item);
-        if (index < 0) {
-            return false;
-        }
-        items.remove(index);
-        return true;
-    }
-
     public Room getExit(String direction) {
         return exits.get(direction);
     }
@@ -88,7 +75,7 @@ public class Room implements Serializable {
     }
 
     public String displayItems() {
-        if (items == null || items.isEmpty()) {
+        if (items.isEmpty()) {
             return "There are no available items in this room";
         }
         String str = "Items available in this room: ";
@@ -100,5 +87,21 @@ public class Room implements Serializable {
 
     public String getLongDescription() {
         return "You are " + description + ".\nExits: " + getExitString();
+    }
+
+    public boolean removeItem(Item item) {
+        if (!checkItems(item)) {
+            return false;
+        }
+        items.remove(item);
+        return true;
+    }
+
+    public void addItem(Item item) {
+        items.add(item);
+    }
+
+    public boolean checkItems(Item item) {
+        return items.contains(item);
     }
 }
