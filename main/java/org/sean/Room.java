@@ -6,17 +6,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Room {
-    private String description;
-    private Map<String, Room> exits; // Map direction to neighboring org.sean.zork.Room
+    private final String description;
+    private final Map<String, Room> exits; // Map direction to neighboring org.sean.zork.Room
     private Character npc;
     private boolean locked;
-    ArrayList<Item> items;
+    private final ArrayList<Item> items;
+    private Chest<Storable> chest;
 
     public Room(String description, boolean locked) {
         items = new ArrayList<Item>();
         this.description = description;
         this.locked = locked;
         exits = new HashMap<>();
+        chest = null;
     }
 
     public Room(String description, boolean locked, Character character) {
@@ -31,6 +33,8 @@ public class Room {
         }
     }
 
+    public Chest<Storable> getChest() { return chest; };
+
     public Room(String description, boolean locked, Character character, Item... items) {
         this(description, locked, character);
         for (Item item : items) {
@@ -44,6 +48,15 @@ public class Room {
 
     public void unlock() {
         this.locked = false;
+    }
+
+    public void setChest(Storable item) {
+        chest = new Chest<>();
+        chest.storeItem(item);
+    }
+
+    public boolean hasChest() {
+        return chest != null;
     }
 
     public boolean isLocked() {

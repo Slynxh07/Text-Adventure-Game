@@ -61,10 +61,10 @@ public class ZorkULGame implements Runnable {
         cell = new Room("Dark dreary cell - lock picks 3x", false, lockpick, lockpick, lockpick);
         hallway = new Room("Cold empty hallway - sewer entrance", true);
         diningHall = new Room("Disgusting rodent-infested dining hall - npc with warning", false);
-        guardOffice = new Room("Eerily quiet guard office - sword and health potion", true, healthPotion, sword);
+        guardOffice = new Room("Eerily quiet guard office - sword and health potion", true, sword);
         sewer1 = new Room("Grim grotesque sewer", false);
         sewer2 = new Room("Grim grotesque sewer - Enemy spider", false);
-        artifactRoom = new Room("Curious looking artifact room - invis potion and health potion", false, invisPotion, healthPotion);
+        artifactRoom = new Room("Curious looking artifact room - invis potion and health potion", false, healthPotion);
         mainHall = new Room("Main hall - 3 guards", true, new Enemy("Bob"));
         courtyard = new Room("Courtyard - guard", false, new Enemy("John"));
         escape = new Room("Final Room", false);
@@ -97,6 +97,9 @@ public class ZorkULGame implements Runnable {
 
         courtyard.setExit("east", mainHall);
         courtyard.setExit("south", escape);
+
+        guardOffice.setChest(healthPotion);
+        artifactRoom.setChest(invisPotion);
 
         rooms.put("cell", cell);
         rooms.put("hallway", hallway);
@@ -145,6 +148,9 @@ public class ZorkULGame implements Runnable {
             case "take":
                 take(command);
                 break;
+            case "loot":
+                loot(command);
+                break;
             case "drop":
                 drop(command);
                 break;
@@ -174,6 +180,9 @@ public class ZorkULGame implements Runnable {
                 break;
             case "nullis":
                 nullis(command);
+                break;
+            case "inspect":
+                inspect(command);
                 break;
             case "quit":
                 if (command.hasSecondWord()) {
@@ -215,6 +224,42 @@ public class ZorkULGame implements Runnable {
         }
     }
 
+    private void inspect(Command command) {
+        if (!command.hasSecondWord()) {
+            controller.outputGUI("Inspect what? ");
+            return;
+        }
+
+        switch (command.getSecondWord()) {
+            case "room":
+                controller.outputGUI(player.getCurrentRoom().getLongDescription());
+                break;
+            case "chest":
+                if (player.getCurrentRoom().hasChest()) {
+                    Chest<Storable> chest = player.getCurrentRoom().getChest();
+                    controller.outputGUI("There is a small golden chest in the corner");
+                    if (chest.isEmpty()) {
+                        controller.outputGUI("It is empty");
+                    } else {
+                        controller.outputGUI("It contains " + chest.getItemName());
+                        controller.outputGUI(chest.getItemInfo());
+                    }
+                } else {
+                    controller.outputGUI("There is no chest here...");
+                }
+                break;
+            default:
+                String itemName = command.getSecondWord();
+                Item item = items.get(itemName);
+
+                if (player.checkItems(item)) {
+                    controller.outputGUI(item.getDescription());
+                } else {
+                    controller.outputGUI("There is no " + itemName + " in your inventory.");
+                }
+        }
+    }
+
     private void nullis(Command command) {
         if (!player.checkItems(invisPotion)) {
             controller.outputGUI("You don't have an invisibility potion, maybe you can find one...");
@@ -225,6 +270,24 @@ public class ZorkULGame implements Runnable {
             return;
         }
         invisPotion.use(player);
+    }
+
+    private void loot(Command command) {
+        if (command.hasSecondWord() && command.getSecondWord().equals("chest")) {
+            if (player.getCurrentRoom().hasChest()) {
+                if (player.getCurrentRoom().getChest().getLoot() instanceof Item) {
+                    player.addItem((Item) player.getCurrentRoom().getChest().getLoot());
+                    controller.outputGUI("Looted " + player.getCurrentRoom().getChest().getItemName() + " from the chest");
+                    player.getCurrentRoom().getChest().emptyChest();
+                } else {
+                    controller.outputGUI("The chest is empty...");
+                }
+            } else {
+                controller.outputGUI("There's no chest here...");
+            }
+            return;
+        }
+        controller.outputGUI("Loot what?");
     }
 
     private void attack(Command command) {
@@ -277,6 +340,15 @@ public class ZorkULGame implements Runnable {
         if (!command.hasSecondWord()) {
             controller.outputGUI("Kill who?");
         }
+
+        String target = command.getSecondWord();
+
+        if (target.equals(player.getCurrentRoom().getCharacter().getName())) {
+            player.getCurrentRoom().getCharacter().die();
+            controller.outputGUI("Killed " + target);
+            return;
+        }
+        controller.outputGUI(target + " is not in this room...");
     }
 
     private void take(Command command) {
@@ -408,7 +480,14 @@ public class ZorkULGame implements Runnable {
     public void run() {
         printWelcome();
 
-        while (ZorkUL.isRunning()) player.inCombat = player.getCurrentRoom().containsEnemy() && player.isVisable();
+        while (ZorkUL.isRunning()) {
+            player.inCombat = player.getCurrentRoom().containsEnemy() && player.isVisable();
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
         controller.outputGUI("Thank you for playing. Goodbye.");
     }

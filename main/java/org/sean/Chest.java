@@ -7,7 +7,7 @@ public class Chest<T extends Storable> {
         this.item = item;
     }
 
-    public Storable getLoot(T item) { return this.item; }
+    public Storable getLoot() { return this.item; }
 
     public void emptyChest() { this.item = null; }
 
@@ -18,4 +18,5 @@ public class Chest<T extends Storable> {
     public String getItemInfo() {
         return this.item.getInfo();
     }
+    public String getItemName() { return this.item.getName(); }
 }

@@ -28,6 +28,7 @@ public class Item implements Storable, Serializable {
         this.description = description;
     }
 
+    @Override
     public String getName() {
         return name;
     }

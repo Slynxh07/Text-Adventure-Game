@@ -22,14 +22,18 @@ public class CommandWords {
         validCommands.put("cheats", "Enable/Disable cheats");
         validCommands.put("lockpick", "Use lock pick to pick locks");
         validCommands.put("nullis", "Use invisibility potion");
+        validCommands.put("inspect", "Inspect items and rooms");
+        validCommands.put("loot", "Loot items from chests");
     }
 
     public void enableCheats() {
         validCommands.put("teleport", "Teleport to desired room");
+        validCommands.put("kill", "Kill enemies in one shot");
     }
 
     public void disableCheats() {
         validCommands.remove("teleport");
+        validCommands.remove("kill");
     }
 
     public boolean isCommand(String commandWord) {
