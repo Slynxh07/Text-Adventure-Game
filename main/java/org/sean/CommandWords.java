@@ -36,11 +36,11 @@ public class CommandWords {
         return validCommands.containsKey(commandWord);
     }
 
-    public void showAll() {
-        System.out.print("Valid commands are: ");
+    public String showAll() {
+        String retStr = "Valid commands are: ";
         for (String command : validCommands.keySet()) {
-            System.out.print(command + " ");
+            retStr += command + " ";
         }
-        System.out.println();
+        return retStr;
     }
 }

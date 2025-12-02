@@ -20,24 +20,27 @@ import java.util.HashMap;
 
 public class ZorkULGame implements Runnable {
     final public static Parser parser = new Parser();
-    private Player player;
 
+    private Player player;
     private Potion healthPotion;
     private Potion invisPotion;
     private Sword sword;
     private Lockpick lockpick;
+    private GUIController controller;
 
     final private HashMap<String, Item> items;
     final private HashMap<String, Room> rooms;
-    final private GUIController controller;
 
     public ZorkULGame() {
         System.setProperty("jna.library.path", "/home/sean/Java projects/ZORK_Mavean/src/main/GameLib");
         items = new HashMap<>();
         rooms = new HashMap<>();
-        controller = new GUIController();
         init();
         //parser = new Parser();
+    }
+
+    public void setController(GUIController guiController) {
+        controller = guiController;
     }
 
     private void init() {
@@ -116,15 +119,10 @@ public class ZorkULGame implements Runnable {
     }
 
     private void printWelcome() {
-        //System.out.println();
         controller.newLine();
-        //System.out.println("You've been locked away... Try escape!");
         controller.outputGUI("You've been locked away... Try escape!");
-        //System.out.println("Type 'help' if you need help.");
         controller.outputGUI("Type 'help' if you need help");
-        //System.out.println();
         controller.newLine();
-        //System.out.println(player.getCurrentRoom().getLongDescription());
         controller.outputGUI(player.getCurrentRoom().getLongDescription());
     }
 
@@ -132,7 +130,7 @@ public class ZorkULGame implements Runnable {
         String commandWord = command.getCommandWord();
 
         if (commandWord == null) {
-            System.out.println("I don't understand your command...");
+            controller.outputGUI("I don't understand your command...");
             return;
         }
 
@@ -142,7 +140,7 @@ public class ZorkULGame implements Runnable {
                 break;
             case "go":
                 if (!player.inCombat) goRoom(command);
-                else System.out.println("Can't leave room while in combat");
+                else controller.outputGUI("Can't leave room while in combat");
                 break;
             case "take":
                 take(command);
@@ -154,7 +152,7 @@ public class ZorkULGame implements Runnable {
                 showInventory(command);
                 break;
             case "items":
-                System.out.println(player.getCurrentRoom().displayItems());
+                controller.outputGUI(player.getCurrentRoom().displayItems());
                 break;
             case "sword":
                 attack(command);
@@ -179,27 +177,27 @@ public class ZorkULGame implements Runnable {
                 break;
             case "quit":
                 if (command.hasSecondWord()) {
-                    System.out.println("Quit what?");
+                    controller.outputGUI("Quit what?");
                     return;
                 } else {
                     ZorkUL.quit();
                     return;
                 }
             default:
-                System.out.println("I don't know what you mean...");
+                controller.outputGUI("I don't know what you mean...");
                 break;
         }
     }
 
     private void printHelp() {
-        System.out.println("You are lost. You are alone. You navigate the chilling prison.");
-        System.out.print("Your command words are: ");
-        parser.showCommands();
+        controller.outputGUI("You are lost. You are alone. You navigate the chilling prison.");
+        controller.outputGUI("Your command words are: ");
+        controller.outputGUI(parser.showCommands());
     }
 
     protected void goRoom(Command command) {
         if (!command.hasSecondWord()) {
-            System.out.println("Go where?");
+            controller.outputGUI("Go where?");
             return;
         }
 
@@ -208,22 +206,22 @@ public class ZorkULGame implements Runnable {
         Room nextRoom = player.getCurrentRoom().getExit(direction);
 
         if (nextRoom == null) {
-            System.out.println("There is no door!");
+            controller.outputGUI("There is no door!");
         } else if (nextRoom.isLocked()) {
-            System.out.println("Door is locked...");
+            controller.outputGUI("Door is locked...");
         } else {
             player.setCurrentRoom(nextRoom);
-            System.out.println(player.getCurrentRoom().getLongDescription());
+            controller.outputGUI(player.getCurrentRoom().getLongDescription());
         }
     }
 
     private void nullis(Command command) {
         if (!player.checkItems(invisPotion)) {
-            System.out.println("You don't have an invisibility potion, maybe you can find one...");
+            controller.outputGUI("You don't have an invisibility potion, maybe you can find one...");
             return;
         }
         if (command.hasSecondWord()) {
-            System.out.println("You should only use nullis on yourself...");
+            controller.outputGUI("You should only use nullis on yourself...");
             return;
         }
         invisPotion.use(player);
@@ -231,28 +229,28 @@ public class ZorkULGame implements Runnable {
 
     private void attack(Command command) {
         if (!player.checkItems(sword)) {
-            System.out.println("org.sean.zork.Sword is not in inventory");
+            controller.outputGUI("Sword is not in inventory");
             return;
         }
 
         if (!command.hasSecondWord()) {
-            System.out.println("Use sword on who?");
+            controller.outputGUI("Use sword on who?");
             return;
         }
 
         String target = command.getSecondWord();
         if (player.getCurrentRoom().getCharacter() != null && target.equals(player.getCurrentRoom().getCharacter().getName())) {
             sword.use(player.getCurrentRoom().getCharacter());
-            System.out.println("Used sword on " + target);
-            System.out.println(target + " health: " + player.getCurrentRoom().getCharacter().getHealth());
+            controller.outputGUI("Used sword on " + target);
+            controller.outputGUI(target + " health: " + player.getCurrentRoom().getCharacter().getHealth());
         } else {
-            System.out.println("Target not found in this room...");
+            controller.outputGUI("Target not found in this room...");
         }
     }
 
     private void cheat(Command command) {
         if (!command.hasSecondWord()) {
-            System.out.println(ZorkUL.isCheats() ? "Cheats enabled" : "Cheats disabled");
+            controller.outputGUI(ZorkUL.isCheats() ? "Cheats enabled" : "Cheats disabled");
             return;
         }
 
@@ -262,28 +260,28 @@ public class ZorkULGame implements Runnable {
             case "enable":
                 ZorkUL.setCheats(true);
                 parser.enableCheats();
-                System.out.println("Enabled Cheats");
+                controller.outputGUI("Enabled Cheats");
                 break;
             case "disable":
                 ZorkUL.setCheats(false);
                 parser.disableCheats();
-                System.out.println("Disabled Cheats");
+                controller.outputGUI("Disabled Cheats");
                 break;
             default:
-                System.out.println("I don't understand what you want...");
+                controller.outputGUI("I don't understand what you want...");
                 break;
         }
     }
 
     private void kill(Command command) {
         if (!command.hasSecondWord()) {
-            System.out.println("Kill who?");
+            controller.outputGUI("Kill who?");
         }
     }
 
     private void take(Command command) {
         if (!command.hasSecondWord()) {
-            System.out.println("Take what?");
+            controller.outputGUI("Take what?");
             return;
         }
 
@@ -294,15 +292,15 @@ public class ZorkULGame implements Runnable {
         if (player.getCurrentRoom().removeItem(item)) {
             player.addItem(item);
         } else {
-            System.out.println("There is no " + itemName + " here");
+            controller.outputGUI("There is no " + itemName + " here");
             return;
         }
-        System.out.println("You picked up an item");
+        controller.outputGUI("You picked up an item");
     }
 
     private void drop(Command command) {
         if (!command.hasSecondWord()) {
-            System.out.println("Drop what?");
+            controller.outputGUI("Drop what?");
             return;
         }
 
@@ -313,43 +311,43 @@ public class ZorkULGame implements Runnable {
         if (player.removeItem(item)) {
             player.getCurrentRoom().addItem(item);
         } else {
-            System.out.println("There is no " + itemName + " in your inventory");
-            System.out.println("See your inventory with: \"inventory\"");
+            controller.outputGUI("There is no " + itemName + " in your inventory");
+            controller.outputGUI("See your inventory with: \"inventory\"");
             return;
         }
-        System.out.println("Item has been dropped!");
+        controller.outputGUI("Item has been dropped!");
     }
 
     private void showInventory(Command command) {
         if (command.hasSecondWord()) {
-            System.out.println("Just type inventory man...");
+            controller.outputGUI("Just type inventory man...");
             return;
         }
-        System.out.println(player.displayInventory());
+        controller.outputGUI(player.displayInventory());
     }
 
     private void heal(Command command) {
         if (!player.checkItems(healthPotion)) {
-            System.out.println("You don't have a health potion, maybe you can find one...");
+            controller.outputGUI("You don't have a health potion, maybe you can find one...");
             return;
         }
         if (command.hasSecondWord()) {
-            System.out.println("You shouldn't heal anyone else bucko...");
+            controller.outputGUI("You shouldn't heal anyone else bucko...");
             return;
         }
         if (player.getHealth() >= 100) {
-            System.out.println("Lock in unc, you're full health");
+            controller.outputGUI("Lock in unc, you're full health");
         }
         healthPotion.use(player);
     }
 
     private void picklock(Command command) {
         if (!player.checkItems(lockpick)) {
-            System.out.println("You don't have a lockpick in your inventory");
+            controller.outputGUI("You don't have a lockpick in your inventory");
             return;
         }
         if (!command.hasSecondWord()) {
-            System.out.println("Pick what?");
+            controller.outputGUI("Pick what?");
             return;
         }
 
@@ -358,21 +356,21 @@ public class ZorkULGame implements Runnable {
         Room nextRoom = player.getCurrentRoom().getExit(direction);
 
         if (nextRoom == null) {
-            System.out.println("There is no door!");
+            controller.outputGUI("There is no door!");
         } else if (!nextRoom.isLocked()) {
-            System.out.println("Door is already unlocked...");
+            controller.outputGUI("Door is already unlocked...");
         } else if (GameLib.INSTANCE.runGame()) {
-            System.out.println("Success! You picked the lock");
+            controller.outputGUI("Success! You picked the lock");
             nextRoom.unlock();
         } else {
-            System.out.println("Oh no! Your pick broke...");
+            controller.outputGUI("Oh no! Your pick broke...");
             player.removeItem(lockpick);
         }
     }
 
     private void teleport(Command command) {
         if (!command.hasSecondWord()) {
-            System.out.println("Teleport where?");
+            controller.outputGUI("Teleport where?");
             return;
         }
 
@@ -382,16 +380,16 @@ public class ZorkULGame implements Runnable {
 
         if (room != null) {
             player.setCurrentRoom(room);
-            System.out.println(player.getCurrentRoom().getLongDescription());
+            controller.outputGUI(player.getCurrentRoom().getLongDescription());
             return;
         }
-        System.out.println("org.sean.zork.Room doesn't exist...");
+        controller.outputGUI("Room doesn't exist...");
     }
 
     private void seralize() {
         try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("player.ser"))) {
             out.writeObject(player);
-            System.out.println("Object has been serialized to player.ser");
+            controller.outputGUI("Object has been serialized to player.ser");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -400,7 +398,7 @@ public class ZorkULGame implements Runnable {
     private void deSeralize() {
         try (ObjectInputStream in = new ObjectInputStream(new FileInputStream("player.ser"))) {
             Player deserializedPlayer = (Player) in.readObject();
-            System.out.println("Object has been deserialized:");
+            controller.outputGUI("Object has been deserialized:");
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
@@ -410,10 +408,8 @@ public class ZorkULGame implements Runnable {
     public void run() {
         printWelcome();
 
-        System.out.println("Before running");
         while (ZorkUL.isRunning()) player.inCombat = player.getCurrentRoom().containsEnemy() && player.isVisable();
-        System.out.println("After running");
 
-        System.out.println("Thank you for playing. Goodbye.");
+        controller.outputGUI("Thank you for playing. Goodbye.");
     }
 }

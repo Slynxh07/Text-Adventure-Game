@@ -2,11 +2,16 @@
 
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
 
-<AnchorPane prefHeight="611.0" prefWidth="870.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.sean.GUIController">
-   <children>
-      <TextField fx:id="inputText" layoutX="345.0" layoutY="489.0" prefHeight="51.0" prefWidth="236.0" promptText="&gt;" />
-      <TextArea fx:id="outputText" editable="false" layoutX="345.0" layoutY="26.0" prefHeight="463.0" prefWidth="236.0" />
-   </children>
-</AnchorPane>
+<?import javafx.scene.layout.VBox?>
+<BorderPane maxHeight="1080" maxWidth="1920" minHeight="600" minWidth="600" prefHeight="1080.0" prefWidth="1920.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.sean.GUIController">
+   <center>
+       <VBox>
+           <children>
+               <TextArea fx:id="outputText" editable="false" prefHeight="600" prefWidth="280.0" wrapText="true" />
+               <TextField fx:id="inputText" prefHeight="51.0" prefWidth="280.0" promptText="&gt;" />
+           </children>
+       </VBox>
+   </center>
+</BorderPane>

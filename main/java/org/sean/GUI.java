@@ -10,12 +10,15 @@ import java.io.IOException;
 
 public class GUI extends Application {
 
+
     final public static ZorkULGame game = new ZorkULGame();
 
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(GUI.class.getResource("gui-view.fxml"));
         Parent root = fxmlLoader.load();
+        GUIController controller = fxmlLoader.getController();
+        game.setController(controller);
         Scene scene = new Scene(root, 1280, 720);
         stage.setScene(scene);
         stage.setTitle("FXML Example");
@@ -24,12 +27,12 @@ public class GUI extends Application {
             ZorkUL.quit();
         });
 
+        new Thread(game).start();
+
         stage.show();
     }
 
     public static void main(String[] args) {
-        Thread gameThread = new Thread(game);
-        gameThread.start();
         launch(args);
     }
 }

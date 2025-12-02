@@ -22,11 +22,11 @@ public class GUIController {
     }
 
     public void outputGUI(String s) {
-        Platform.runLater(() -> this.outputText.appendText(s + "\n"));
+        Platform.runLater(() -> outputText.appendText("\n" + s));
     }
 
     public void newLine() {
-        this.outputText.appendText("\n");
+        outputText.appendText("\n");
     }
 
     private void keyPress(KeyEvent e) {
