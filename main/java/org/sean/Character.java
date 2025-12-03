@@ -29,6 +29,9 @@ abstract public class Character implements Serializable {
 
     void takeDamage(int damage) {
         health -= damage;
+        if (health <= 0) {
+            die();
+        }
     }
 
     abstract public void die();

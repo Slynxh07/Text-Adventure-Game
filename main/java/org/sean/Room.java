@@ -19,6 +19,7 @@ public class Room {
         this.locked = locked;
         exits = new HashMap<>();
         chest = null;
+        npc = null;
     }
 
     public Room(String description, boolean locked, Character character) {
@@ -41,6 +42,8 @@ public class Room {
             addItem(item);
         }
     }
+
+    public void setCharacter(Character character) {npc = character; }
 
     public boolean containsEnemy() {
         return npc != null && npc instanceof Enemy;

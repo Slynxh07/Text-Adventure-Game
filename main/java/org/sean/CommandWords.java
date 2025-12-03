@@ -24,6 +24,7 @@ public class CommandWords {
         validCommands.put("nullis", "Use invisibility potion");
         validCommands.put("inspect", "Inspect items and rooms");
         validCommands.put("loot", "Loot items from chests");
+        validCommands.put("speak", "Speak with NPCs");
     }
 
     public void enableCheats() {

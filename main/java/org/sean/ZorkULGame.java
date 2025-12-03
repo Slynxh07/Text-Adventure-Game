@@ -58,16 +58,16 @@ public class ZorkULGame implements Runnable {
         Room cell, hallway, diningHall, guardOffice, sewer1, sewer2, artifactRoom, mainHall, courtyard, escape;
 
         // create rooms
-        cell = new Room("Dark dreary cell - lock picks 3x", false, lockpick, lockpick, lockpick);
-        hallway = new Room("Cold empty hallway - sewer entrance", true);
-        diningHall = new Room("Disgusting rodent-infested dining hall - npc with warning", false);
-        guardOffice = new Room("Eerily quiet guard office - sword and health potion", true, sword);
-        sewer1 = new Room("Grim grotesque sewer", false);
-        sewer2 = new Room("Grim grotesque sewer - Enemy spider", false);
-        artifactRoom = new Room("Curious looking artifact room - invis potion and health potion", false, healthPotion);
-        mainHall = new Room("Main hall - 3 guards", true, new Enemy("Bob"));
-        courtyard = new Room("Courtyard - guard", false, new Enemy("John"));
-        escape = new Room("Final Room", false);
+        cell = new Room("Dark dreary cell - lock picks 3x", LockStates.UNLOCKED.state, lockpick, lockpick, lockpick);
+        hallway = new Room("Cold empty hallway - sewer entrance", LockStates.LOCKED.state);
+        diningHall = new Room("Disgusting rodent-infested dining hall - npc with warning", LockStates.UNLOCKED.state, new Nuetral("Litton", "Carful of Garrin in the main hall, he really hits hard. If your hoping to escape I'd try find some way to get around him instead of fighting him. I heard the sewers lead to the artifact room, maybe you could find something useful there? But beware, there are some rumors of some terrifying beast that guards the sewers..."));
+        guardOffice = new Room("Eerily quiet guard office - sword and health potion", LockStates.LOCKED.state, sword);
+        sewer1 = new Room("Grim grotesque sewer", LockStates.UNLOCKED.state);
+        sewer2 = new Room("Grim grotesque sewer - Enemy spider", LockStates.UNLOCKED.state, new Enemy("Spider", 20, Effects.POISON));
+        artifactRoom = new Room("Curious looking artifact room - invis potion and health potion", LockStates.UNLOCKED.state, healthPotion);
+        mainHall = new Room("Main hall - 3 guards", LockStates.LOCKED.state, new Enemy("Garrin", 60));
+        courtyard = new Room("Courtyard - guard", LockStates.UNLOCKED.state, new Enemy("John", 30));
+        escape = new Room("Final Room", LockStates.UNLOCKED.state);
 
         // initialise room exits
         cell.setExit("south", hallway);
@@ -175,6 +175,9 @@ public class ZorkULGame implements Runnable {
             case "kill":
                 kill(command);
                 break;
+            case "speak":
+                speak(command);
+                break;
             case "lockpick":
                 picklock(command);
                 break;
@@ -260,6 +263,33 @@ public class ZorkULGame implements Runnable {
         }
     }
 
+    private void speak(Command command) {
+        if (!command.hasSecondWord()) {
+            controller.outputGUI("Speak to who? ");
+            return;
+        }
+
+        String name = command.getSecondWord();
+        Character npc = player.getCurrentRoom().getCharacter();
+
+        if (npc == null) {
+            controller.outputGUI("There's no one in this room...");
+            return;
+        }
+
+        if (name.equals(npc.getName())) {
+            if (npc instanceof Interactable) {
+                controller.outputGUI("You spoke to " + name);
+                controller.outputGUI("He says ");
+                controller.outputGUI(((Interactable) npc).getDialog());
+            } else {
+                controller.outputGUI(name + " has nothing to say to you...");
+            }
+        } else {
+            controller.outputGUI("There is no one named " + name + " here...");
+        }
+    }
+
     private void nullis(Command command) {
         if (!player.checkItems(invisPotion)) {
             controller.outputGUI("You don't have an invisibility potion, maybe you can find one...");
@@ -305,7 +335,17 @@ public class ZorkULGame implements Runnable {
         if (player.getCurrentRoom().getCharacter() != null && target.equals(player.getCurrentRoom().getCharacter().getName())) {
             sword.use(player.getCurrentRoom().getCharacter());
             controller.outputGUI("Used sword on " + target);
-            controller.outputGUI(target + " health: " + player.getCurrentRoom().getCharacter().getHealth());
+            if (player.getCurrentRoom().getCharacter().isAlive()) {
+                controller.outputGUI(target + " health: " + player.getCurrentRoom().getCharacter().getHealth());
+                if (player.getCurrentRoom().getCharacter() instanceof Enemy) {
+                    ((Enemy) player.getCurrentRoom().getCharacter()).attack(player);
+                    controller.outputGUI(target + " attacked you. You have " + player.getHealth() + " health remaining...");
+                    if (player.isPoisoned()) controller.outputGUI("You've been inflicted with poison");
+                }
+            } else {
+                controller.outputGUI("You killed " + target);
+                player.getCurrentRoom().setCharacter(null);
+            }
         } else {
             controller.outputGUI("Target not found in this room...");
         }

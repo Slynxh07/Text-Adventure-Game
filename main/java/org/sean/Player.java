@@ -7,8 +7,9 @@ public class Player extends Character {
     private ArrayList<Item> inventory;
     private Room currentRoom;
     public boolean inCombat;
-    static int roomCount;
-    static int invisLimit;
+    private boolean poisoned;
+    private static int roomCount;
+    private static int invisLimit;
 
     public Player(String name, Room startingRoom) {
         super(name);
@@ -17,6 +18,7 @@ public class Player extends Character {
         invisLimit = 0;
         inventory = new ArrayList<Item>();
         this.currentRoom = startingRoom;
+        poisoned = false;
     }
 
     public Room getCurrentRoom() {
@@ -56,9 +58,14 @@ public class Player extends Character {
                 visable = false;
                 invisLimit = roomCount;
                 break;
-            case POISION:
+            case POISON:
+                poisoned = true;
                 break;
         }
+    }
+
+    public boolean isPoisoned() {
+        return poisoned;
     }
 
     public String displayInventory() {
