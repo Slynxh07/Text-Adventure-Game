@@ -1,8 +1,11 @@
 package org.sean;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 abstract public class Character implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
     private String name;
     protected int health;
     protected boolean visable;

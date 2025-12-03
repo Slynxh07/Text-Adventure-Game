@@ -1,8 +1,11 @@
 package org.sean;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 public class Item implements Storable, Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
     private String description;
     private String name;
     private String location;
@@ -59,5 +62,18 @@ public class Item implements Storable, Serializable {
 
     public void setVisible(boolean visible) {
         isVisible = visible;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Item item = (Item) o;
+        return name.equalsIgnoreCase(item.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return name.toLowerCase().hashCode();
     }
 }

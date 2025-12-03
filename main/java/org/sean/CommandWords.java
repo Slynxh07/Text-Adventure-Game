@@ -25,16 +25,20 @@ public class CommandWords {
         validCommands.put("inspect", "Inspect items and rooms");
         validCommands.put("loot", "Loot items from chests");
         validCommands.put("speak", "Speak with NPCs");
+        validCommands.put("save", "Save game to specified file");
+        validCommands.put("load", "Load game from specified file");
     }
 
     public void enableCheats() {
         validCommands.put("teleport", "Teleport to desired room");
         validCommands.put("kill", "Kill enemies in one shot");
+        validCommands.put("unlock", "Instantly unlocks door");
     }
 
     public void disableCheats() {
         validCommands.remove("teleport");
         validCommands.remove("kill");
+        validCommands.remove("unlock");
     }
 
     public boolean isCommand(String commandWord) {

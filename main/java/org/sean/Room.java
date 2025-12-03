@@ -1,11 +1,14 @@
 package org.sean;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Room {
+public class Room implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
     private final String description;
     private final Map<String, Room> exits; // Map direction to neighboring org.sean.zork.Room
     private Character npc;

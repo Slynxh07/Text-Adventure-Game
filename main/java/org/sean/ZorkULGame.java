@@ -16,6 +16,7 @@ emphasizing exploration and simple command-driven gameplay
 */
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class ZorkULGame implements Runnable {
@@ -29,10 +30,10 @@ public class ZorkULGame implements Runnable {
     private GUIController controller;
 
     final private HashMap<String, Item> items;
-    final private HashMap<String, Room> rooms;
+    private HashMap<String, Room> rooms;
 
     public ZorkULGame() {
-        System.setProperty("jna.library.path", "/home/sean/Java projects/ZORK_Mavean/src/main/GameLib");
+        System.setProperty("jna.library.path", "src/main/GameLib");
         items = new HashMap<>();
         rooms = new HashMap<>();
         init();
@@ -116,11 +117,6 @@ public class ZorkULGame implements Runnable {
         player = new Player("sean", cell);
     }
 
-    private void play() {
-        //deSeralize();
-        //seralize();
-    }
-
     private void printWelcome() {
         controller.newLine();
         controller.outputGUI("You've been locked away... Try escape!");
@@ -175,6 +171,9 @@ public class ZorkULGame implements Runnable {
             case "kill":
                 kill(command);
                 break;
+            case "unlock":
+                unlock(command);
+                break;
             case "speak":
                 speak(command);
                 break;
@@ -186,6 +185,12 @@ public class ZorkULGame implements Runnable {
                 break;
             case "inspect":
                 inspect(command);
+                break;
+            case "save":
+                save(command);
+                break;
+            case "load":
+                load(command);
                 break;
             case "quit":
                 if (command.hasSecondWord()) {
@@ -223,9 +228,15 @@ public class ZorkULGame implements Runnable {
             controller.outputGUI("Door is locked...");
         } else {
             player.setCurrentRoom(nextRoom);
+            if (checkWin()) {
+                ZorkUL.win();
+                controller.outputGUI("You win");
+            }
             controller.outputGUI(player.getCurrentRoom().getLongDescription());
         }
     }
+
+    private boolean checkWin() { return player.getCurrentRoom().equals(rooms.get("escape")); }
 
     private void inspect(Command command) {
         if (!command.hasSecondWord()) {
@@ -492,28 +503,65 @@ public class ZorkULGame implements Runnable {
 
         if (room != null) {
             player.setCurrentRoom(room);
+            if (checkWin()) {
+                ZorkUL.win();
+                controller.outputGUI("You win");
+            }
             controller.outputGUI(player.getCurrentRoom().getLongDescription());
             return;
         }
         controller.outputGUI("Room doesn't exist...");
     }
 
-    private void seralize() {
-        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("player.ser"))) {
-            out.writeObject(player);
-            controller.outputGUI("Object has been serialized to player.ser");
-        } catch (IOException e) {
-            e.printStackTrace();
+    private void unlock(Command command) {
+        if (!command.hasSecondWord()) {
+            controller.outputGUI("Unlock what?");
+            return;
+        }
+
+        String direction = command.getSecondWord();
+
+        Room nextRoom = player.getCurrentRoom().getExit(direction);
+
+        if (nextRoom == null) {
+            controller.outputGUI("There is no door!");
+        } else if (!nextRoom.isLocked()) {
+            controller.outputGUI("Door is already unlocked...");
+        } else {
+            controller.outputGUI("Door unlocked");
+            nextRoom.unlock();
         }
     }
 
-    private void deSeralize() {
-        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream("player.ser"))) {
-            Player deserializedPlayer = (Player) in.readObject();
-            controller.outputGUI("Object has been deserialized:");
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
+    private void save(Command command) {
+        if (!command.hasSecondWord()) {
+            controller.outputGUI("Save where?");
+            return;
         }
+
+        String fileName = command.getSecondWord();
+        SaveManager.saveGame(player, rooms, fileName);
+        controller.outputGUI("Game saved to " + fileName);
+    }
+
+    private void load (Command command) {
+        if (!command.hasSecondWord()) {
+            controller.outputGUI("Load from where?");
+            return;
+        }
+
+        String fileName = command.getSecondWord();
+        SaveData data = SaveManager.loadGame(fileName);
+        if (data == null) {
+            controller.outputGUI("Invalid file name");
+            return;
+        }
+        player = data.getPlayer();
+        player.setRoomCount(data.getRoomCount());
+        player.setInvisLimit(data.getInvisLimit());
+        rooms = data.getRooms();
+        controller.outputGUI("Loaded game from " + fileName);
+        controller.outputGUI(player.getCurrentRoom().getLongDescription());
     }
 
     @Override

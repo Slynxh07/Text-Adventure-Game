@@ -8,9 +8,13 @@ public class ZorkUL {
 
     private static volatile boolean running = true;
 
+    private static boolean playerWon = false;
+
     public static void quit() {
          running = false;
     }
+
+    public static void win() { playerWon = true; }
 
     public static boolean isRunning() {
         return running;

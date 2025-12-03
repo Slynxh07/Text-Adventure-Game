@@ -1,6 +1,8 @@
 package org.sean;
 
-public enum Effects {
+import java.io.Serializable;
+
+public enum Effects implements Serializable {
     HEALING,
     IVISABILITY,
     POISON

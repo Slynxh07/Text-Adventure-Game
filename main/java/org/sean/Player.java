@@ -1,9 +1,11 @@
 package org.sean;
 
+import java.io.Serial;
 import java.util.ArrayList;
 
 public class Player extends Character {
-    //private static final long serialVersionUID = 1L;
+    @Serial
+    private static final long serialVersionUID = 1L;
     private ArrayList<Item> inventory;
     private Room currentRoom;
     public boolean inCombat;
@@ -19,6 +21,22 @@ public class Player extends Character {
         inventory = new ArrayList<Item>();
         this.currentRoom = startingRoom;
         poisoned = false;
+    }
+
+    public void setRoomCount(int x) {
+        roomCount = x;
+    }
+
+    public void setInvisLimit(int x) {
+        invisLimit = x;
+    }
+
+    public int getRoomCount() {
+        return roomCount;
+    }
+
+    public int getInvisLimit() {
+        return invisLimit;
     }
 
     public Room getCurrentRoom() {

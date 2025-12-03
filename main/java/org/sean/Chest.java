@@ -1,6 +1,11 @@
 package org.sean;
 
-public class Chest<T extends Storable> {
+import java.io.Serial;
+import java.io.Serializable;
+
+public class Chest<T extends Storable> implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
     private T item;
 
     public void storeItem(T item) {
