@@ -26,12 +26,16 @@ public class ZorkULGame implements Runnable {
     private Sword sword;
     private Lockpick lockpick;
     private GUIController controller;
+    private GameLib lib;
 
     final private HashMap<String, Item> items;
     private HashMap<String, Room> rooms;
 
     public ZorkULGame() {
-        System.setProperty("jna.library.path", "src/main/GameLib");
+        //System.setProperty("jna.library.path", "src/main/resources/org/sean/GameLib");
+        System.setProperty("jna.debug_load", "true");
+        System.setProperty("jna.debug_load.jna", "true");
+        lib = GameLibLoader.get();
         items = new HashMap<>();
         rooms = new HashMap<>();
         init();
@@ -57,16 +61,16 @@ public class ZorkULGame implements Runnable {
         Room cell, hallway, diningHall, guardOffice, sewer1, sewer2, artifactRoom, mainHall, courtyard, escape;
 
         // create rooms
-        cell = new Room("Dark dreary cell - lock picks 3x", "cell", LockStates.UNLOCKED.state, lockpick, lockpick, lockpick);
-        hallway = new Room("Cold empty hallway - sewer entrance", "hallway", LockStates.LOCKED.state);
-        diningHall = new Room("Disgusting rodent-infested dining hall - npc with warning", "diningHall", LockStates.UNLOCKED.state, new Nuetral("Litton", "Carful of Garrin in the main hall, he really hits hard. If your hoping to escape I'd try find some way to get around him instead of fighting him. I heard the sewers lead to the artifact room, maybe you could find something useful there? But beware, there are some rumors of some terrifying beast that guards the sewers..."));
-        guardOffice = new Room("Eerily quiet guard office - sword and health potion", "guardOffice", LockStates.LOCKED.state, sword);
-        sewer1 = new Room("Grim grotesque sewer", "sewer1", LockStates.UNLOCKED.state);
-        sewer2 = new Room("Grim grotesque sewer - Enemy spider", "sewer2", LockStates.UNLOCKED.state, new Enemy("Spider", 20, Effects.POISON, 50));
-        artifactRoom = new Room("Curious looking artifact room - invis potion and health potion", "artifactRoom", LockStates.UNLOCKED.state, healthPotion);
-        mainHall = new Room("Main hall - 3 guards", "mainHall", LockStates.LOCKED.state, new Enemy("Garrin", 60));
-        courtyard = new Room("Courtyard - guard", "courtyard", LockStates.UNLOCKED.state, new Enemy("Warrel", 30));
-        escape = new Room("Final Room", "escape", LockStates.UNLOCKED.state);
+        cell = new Room("a dark dreary cell, there's a small silver glow in the corner, use 'items' to see what's in the room", "cell", LockStates.UNLOCKED.state, lockpick, lockpick, lockpick);
+        hallway = new Room("a cold empty hallway, there a sewer grate in the floor. You hear a lot of noise coming from the dining hall to west", "hallway", LockStates.LOCKED.state);
+        diningHall = new Room("a disgusting rodent-infested dining hall, Litton looks like he has something to say to you. Speak to him with 'speak'", "diningHall", LockStates.UNLOCKED.state, new Nuetral("Litton", "Carful of Garrin in the main hall, he really hits hard. If your hoping to escape I'd try find some way to get around him instead of fighting him. I heard the sewers lead to the artifact room, maybe you could find something useful there? But beware, there are some rumors of some terrifying beast that guards the sewers..."));
+        guardOffice = new Room("an eerily quiet guard office, there is a sword resting against the wall and a small gold chest in the corner", "guardOffice", LockStates.LOCKED.state, sword);
+        sewer1 = new Room("a grim grotesque sewer, you hear something crawling in the distance", "sewer1", LockStates.UNLOCKED.state);
+        sewer2 = new Room("a slimly part of the sewer, there is a sewer grate above you. A terrifying spider stands in your way", "sewer2", LockStates.UNLOCKED.state, new Enemy("Spider", 20, Effects.POISON, 50));
+        artifactRoom = new Room("a curious looking artifact room many potions line the shelves, there is a small gold chest in the corner", "artifactRoom", LockStates.UNLOCKED.state, healthPotion);
+        mainHall = new Room("the main main hall. Garrin is standing gaurd. He looks suspicious of you, maybe you could sneak past", "mainHall", LockStates.LOCKED.state, new Enemy("Garrin", 60));
+        courtyard = new Room("the courtyard, Warrel is standing guard, he's the last thing standing between you and freedom", "courtyard", LockStates.UNLOCKED.state, new Enemy("Warrel", 30));
+        escape = new Room("You escaped!", "escape", LockStates.UNLOCKED.state);
 
         // initialise room exits
         cell.setExit("south", hallway);
@@ -493,12 +497,13 @@ public class ZorkULGame implements Runnable {
             controller.outputGUI("There is no door!");
         } else if (!nextRoom.isLocked()) {
             controller.outputGUI("Door is already unlocked...");
-        } else if (GameLib.INSTANCE.runGame()) {
+        } else if (lib.runGame() != 0) {
             controller.outputGUI("Success! You picked the lock");
             nextRoom.unlock();
         } else {
             controller.outputGUI("Oh no! Your pick broke...");
             player.removeItem(lockpick);
+            controller.removeInventory(lockpick.getName());
         }
     }
 
@@ -584,6 +589,11 @@ public class ZorkULGame implements Runnable {
         while (ZorkUL.isRunning()) {
             Room currRoom = player.getCurrentRoom();
             player.inCombat = currRoom.containsEnemy() && player.isVisable();
+            if (currRoom.getName().equals("escape")) ZorkUL.win();
+            if (!player.alive) {
+                controller.outputGUI("You died, you lose");
+                ZorkUL.quit();
+            }
             controller.setRoomImage(currRoom.getName());
             try {
                 Thread.sleep(10);
@@ -591,7 +601,7 @@ public class ZorkULGame implements Runnable {
                 throw new RuntimeException(e);
             }
         }
-
+        if (ZorkUL.won()) controller.outputGUI("You Won! You managed to escape!");
         controller.outputGUI("Thank you for playing. Goodbye.");
     }
 }

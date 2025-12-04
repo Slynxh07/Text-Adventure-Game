@@ -77,10 +77,6 @@ public class Room implements Serializable {
         return npc;
     }
 
-    public String getDescription() {
-        return description;
-    }
-
     public void setExit(String direction, Room neighbor) {
         exits.put(direction, neighbor);
     }
@@ -109,7 +105,7 @@ public class Room implements Serializable {
     }
 
     public String getLongDescription() {
-        return "You are " + description + ".\nExits: " + getExitString();
+        return "You are in " + description + ".\nExits: " + getExitString();
     }
 
     public boolean removeItem(Item item) {

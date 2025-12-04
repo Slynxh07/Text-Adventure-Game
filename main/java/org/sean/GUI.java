@@ -21,7 +21,7 @@ public class GUI extends Application {
         Parent root = fxmlLoader.load();
         GUIController controller = fxmlLoader.getController();
         game.setController(controller);
-        Scene scene = new Scene(root, 1280, 720);
+        Scene scene = new Scene(root, 1500, 1000);
         stage.setScene(scene);
         stage.setTitle("FXML Example");
 

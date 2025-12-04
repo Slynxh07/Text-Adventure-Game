@@ -14,7 +14,12 @@ public class ZorkUL {
          running = false;
     }
 
-    public static void win() { playerWon = true; }
+    public static void win() {
+        playerWon = true;
+        running = false;
+    }
+
+    public static boolean won() { return playerWon; }
 
     public static boolean isRunning() {
         return running;
