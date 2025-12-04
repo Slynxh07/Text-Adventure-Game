@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -15,6 +16,7 @@ public class GUI extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
+        Font.loadFont(getClass().getResourceAsStream("/org/sean/fonts/VT323-Regular.ttf"), 16);
         FXMLLoader fxmlLoader = new FXMLLoader(GUI.class.getResource("gui-view.fxml"));
         Parent root = fxmlLoader.load();
         GUIController controller = fxmlLoader.getController();

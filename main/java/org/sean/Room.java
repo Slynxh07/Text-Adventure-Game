@@ -15,36 +15,40 @@ public class Room implements Serializable {
     private boolean locked;
     private final ArrayList<Item> items;
     private Chest<Storable> chest;
+    private String name;
 
-    public Room(String description, boolean locked) {
+    public Room(String description, String name, boolean locked) {
         items = new ArrayList<Item>();
         this.description = description;
         this.locked = locked;
         exits = new HashMap<>();
         chest = null;
         npc = null;
+        this.name = name;
     }
 
-    public Room(String description, boolean locked, Character character) {
-        this(description, locked);
+    public Room(String description, String name, boolean locked, Character character) {
+        this(description, name, locked);
         this.npc = character;
     }
 
-    public Room(String description, boolean locked, Item... items) {
-        this(description, locked);
+    public Room(String description, String name, boolean locked, Item... items) {
+        this(description, name, locked);
         for (Item item : items) {
             addItem(item);
         }
     }
+
+    public Room(String description, String name, boolean locked, Character character, Item... items) {
+        this(description, name, locked, character);
+        for (Item item : items) {
+            addItem(item);
+        }
+    }
+
+    public String getName() { return name; }
 
     public Chest<Storable> getChest() { return chest; };
-
-    public Room(String description, boolean locked, Character character, Item... items) {
-        this(description, locked, character);
-        for (Item item : items) {
-            addItem(item);
-        }
-    }
 
     public void setCharacter(Character character) {npc = character; }
 

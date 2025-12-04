@@ -15,5 +15,10 @@ public class Nuetral extends Character implements Interactable {
     public void setDialog(String dialog) { this.dialog = dialog; }
 
     @Override
+    public void takeDamage(int damage) {
+        return;
+    }
+
+    @Override
     public void die() { return; }
 }

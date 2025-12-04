@@ -6,7 +6,7 @@ import java.util.HashMap;
 public class SaveManager implements Serializable {
     public static void saveGame(Player player, HashMap<String, Room> rooms, String fileName) {
         try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(fileName))) {
-            out.writeObject(new SaveData(player, rooms, player.getRoomCount(), player.getInvisLimit()));
+            out.writeObject(new SaveData(player, rooms, player.getRoomCount(), player.getInvisLimit(), player.getTurnCount(), player.getPoisonLimit()));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

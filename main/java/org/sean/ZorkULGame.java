@@ -15,8 +15,6 @@ Overall, it recreates the classic Zork interactive fiction experience with a uni
 emphasizing exploration and simple command-driven gameplay
 */
 
-import java.io.*;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 public class ZorkULGame implements Runnable {
@@ -59,16 +57,16 @@ public class ZorkULGame implements Runnable {
         Room cell, hallway, diningHall, guardOffice, sewer1, sewer2, artifactRoom, mainHall, courtyard, escape;
 
         // create rooms
-        cell = new Room("Dark dreary cell - lock picks 3x", LockStates.UNLOCKED.state, lockpick, lockpick, lockpick);
-        hallway = new Room("Cold empty hallway - sewer entrance", LockStates.LOCKED.state);
-        diningHall = new Room("Disgusting rodent-infested dining hall - npc with warning", LockStates.UNLOCKED.state, new Nuetral("Litton", "Carful of Garrin in the main hall, he really hits hard. If your hoping to escape I'd try find some way to get around him instead of fighting him. I heard the sewers lead to the artifact room, maybe you could find something useful there? But beware, there are some rumors of some terrifying beast that guards the sewers..."));
-        guardOffice = new Room("Eerily quiet guard office - sword and health potion", LockStates.LOCKED.state, sword);
-        sewer1 = new Room("Grim grotesque sewer", LockStates.UNLOCKED.state);
-        sewer2 = new Room("Grim grotesque sewer - Enemy spider", LockStates.UNLOCKED.state, new Enemy("Spider", 20, Effects.POISON));
-        artifactRoom = new Room("Curious looking artifact room - invis potion and health potion", LockStates.UNLOCKED.state, healthPotion);
-        mainHall = new Room("Main hall - 3 guards", LockStates.LOCKED.state, new Enemy("Garrin", 60));
-        courtyard = new Room("Courtyard - guard", LockStates.UNLOCKED.state, new Enemy("John", 30));
-        escape = new Room("Final Room", LockStates.UNLOCKED.state);
+        cell = new Room("Dark dreary cell - lock picks 3x", "cell", LockStates.UNLOCKED.state, lockpick, lockpick, lockpick);
+        hallway = new Room("Cold empty hallway - sewer entrance", "hallway", LockStates.LOCKED.state);
+        diningHall = new Room("Disgusting rodent-infested dining hall - npc with warning", "diningHall", LockStates.UNLOCKED.state, new Nuetral("Litton", "Carful of Garrin in the main hall, he really hits hard. If your hoping to escape I'd try find some way to get around him instead of fighting him. I heard the sewers lead to the artifact room, maybe you could find something useful there? But beware, there are some rumors of some terrifying beast that guards the sewers..."));
+        guardOffice = new Room("Eerily quiet guard office - sword and health potion", "guardOffice", LockStates.LOCKED.state, sword);
+        sewer1 = new Room("Grim grotesque sewer", "sewer1", LockStates.UNLOCKED.state);
+        sewer2 = new Room("Grim grotesque sewer - Enemy spider", "sewer2", LockStates.UNLOCKED.state, new Enemy("Spider", 20, Effects.POISON, 50));
+        artifactRoom = new Room("Curious looking artifact room - invis potion and health potion", "artifactRoom", LockStates.UNLOCKED.state, healthPotion);
+        mainHall = new Room("Main hall - 3 guards", "mainHall", LockStates.LOCKED.state, new Enemy("Garrin", 60));
+        courtyard = new Room("Courtyard - guard", "courtyard", LockStates.UNLOCKED.state, new Enemy("Warrel", 30));
+        escape = new Room("Final Room", "escape", LockStates.UNLOCKED.state);
 
         // initialise room exits
         cell.setExit("south", hallway);
@@ -319,6 +317,7 @@ public class ZorkULGame implements Runnable {
                 if (player.getCurrentRoom().getChest().getLoot() instanceof Item) {
                     player.addItem((Item) player.getCurrentRoom().getChest().getLoot());
                     controller.outputGUI("Looted " + player.getCurrentRoom().getChest().getItemName() + " from the chest");
+                    controller.addInventory(player.getCurrentRoom().getChest().getLoot().getName());
                     player.getCurrentRoom().getChest().emptyChest();
                 } else {
                     controller.outputGUI("The chest is empty...");
@@ -351,7 +350,14 @@ public class ZorkULGame implements Runnable {
                 if (player.getCurrentRoom().getCharacter() instanceof Enemy) {
                     ((Enemy) player.getCurrentRoom().getCharacter()).attack(player);
                     controller.outputGUI(target + " attacked you. You have " + player.getHealth() + " health remaining...");
-                    if (player.isPoisoned()) controller.outputGUI("You've been inflicted with poison");
+                    controller.setHealthBar(player.getHealth());
+                    if (player.isPoisoned()) {
+                        controller.outputGUI("You've been inflicted with poison");
+                        controller.outputGUI("You took 5 more damage");
+                        player.poison();
+                        controller.outputGUI("You have " + player.getHealth() + " health remaining...");
+                        controller.setHealthBar(player.getHealth());
+                    }
                 }
             } else {
                 controller.outputGUI("You killed " + target);
@@ -414,6 +420,7 @@ public class ZorkULGame implements Runnable {
 
         if (player.getCurrentRoom().removeItem(item)) {
             player.addItem(item);
+            controller.addInventory(item.getName());
         } else {
             controller.outputGUI("There is no " + itemName + " here");
             return;
@@ -433,6 +440,7 @@ public class ZorkULGame implements Runnable {
 
         if (player.removeItem(item)) {
             player.getCurrentRoom().addItem(item);
+            controller.removeInventory(item.getName());
         } else {
             controller.outputGUI("There is no " + itemName + " in your inventory");
             controller.outputGUI("See your inventory with: \"inventory\"");
@@ -462,6 +470,9 @@ public class ZorkULGame implements Runnable {
             controller.outputGUI("Lock in unc, you're full health");
         }
         healthPotion.use(player);
+        controller.outputGUI("You used a health potion");
+        controller.outputGUI("You have " + player.getHealth() + " remaining");
+        controller.setHealthBar(player.getHealth());
     }
 
     private void picklock(Command command) {
@@ -559,6 +570,8 @@ public class ZorkULGame implements Runnable {
         player = data.getPlayer();
         player.setRoomCount(data.getRoomCount());
         player.setInvisLimit(data.getInvisLimit());
+        player.setTurnCount(data.getTurnCount());
+        player.setPoisonLimit(data.getPoisonLimit());
         rooms = data.getRooms();
         controller.outputGUI("Loaded game from " + fileName);
         controller.outputGUI(player.getCurrentRoom().getLongDescription());
@@ -569,7 +582,9 @@ public class ZorkULGame implements Runnable {
         printWelcome();
 
         while (ZorkUL.isRunning()) {
-            player.inCombat = player.getCurrentRoom().containsEnemy() && player.isVisable();
+            Room currRoom = player.getCurrentRoom();
+            player.inCombat = currRoom.containsEnemy() && player.isVisable();
+            controller.setRoomImage(currRoom.getName());
             try {
                 Thread.sleep(10);
             } catch (InterruptedException e) {

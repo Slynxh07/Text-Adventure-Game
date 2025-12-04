@@ -30,12 +30,7 @@ abstract public class Character implements Serializable {
         return health;
     }
 
-    void takeDamage(int damage) {
-        health -= damage;
-        if (health <= 0) {
-            die();
-        }
-    }
+    abstract void takeDamage(int damage);
 
     abstract public void die();
 

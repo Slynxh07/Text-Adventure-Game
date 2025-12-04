@@ -1,17 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.Pane?>
 
-<?import javafx.scene.layout.VBox?>
-<BorderPane maxHeight="1080" maxWidth="1920" minHeight="600" minWidth="600" prefHeight="1080.0" prefWidth="1920.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.sean.GUIController">
-   <center>
-       <VBox>
-           <children>
-               <TextArea fx:id="outputText" editable="false" prefHeight="600" prefWidth="280.0" wrapText="true" />
-               <TextField fx:id="inputText" prefHeight="51.0" prefWidth="280.0" promptText="&gt;" />
-           </children>
-       </VBox>
-   </center>
-</BorderPane>
+<Pane xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.sean.GUIController">
+   <children>
+         <TextArea fx:id="outputText" editable="false" layoutY="44.0" prefHeight="811.0" prefWidth="438.0" style="-fx-background-color: #A9A9A9; -fx-control-inner-background: #A9A9A9; -fx-border-color: #A9A9A9; -fx-font-family: 'VT323'; -fx-font-size: 32;" wrapText="true" />
+         <TextField fx:id="inputText" layoutY="855.0" prefHeight="90.0" prefWidth="438.0" promptText="&gt;" style="-fx-background-color: #A9A9A9; -fx-font-family: 'VT323'; -fx-font-size: 32;" />
+      <ImageView fx:id="roomImage" fitHeight="450.0" fitWidth="675.0" layoutX="438.0" layoutY="495.0" pickOnBounds="true" preserveRatio="true" />
+      <ImageView fx:id="mapImage" fitHeight="450.0" fitWidth="675.0" layoutX="438.0" layoutY="45.0" pickOnBounds="true" preserveRatio="true" />
+      <Label style="-fx-background-color: #A9A9A9; -fx-font-family: 'VT323'; -fx-font-size: 32;" text="Health:    " />
+      <TextArea fx:id="inventoryText" editable="false" layoutX="1116.0" layoutY="44.0" prefHeight="901.0" prefWidth="438.0" style="-fx-background-color: #A9A9A9; -fx-control-inner-background: #A9A9A9; -fx-border-color: #A9A9A9; -fx-font-family: 'VT323'; -fx-font-size: 32;" />
+      <ProgressBar fx:id="healthBar" layoutX="141.0" layoutY="-1.0" prefHeight="47.0" prefWidth="1413.0" progress="1.0" style="-fx-accent: red;" />
+   </children>
+</Pane>

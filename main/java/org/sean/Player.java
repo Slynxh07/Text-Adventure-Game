@@ -12,23 +12,55 @@ public class Player extends Character {
     private boolean poisoned;
     private static int roomCount;
     private static int invisLimit;
+    private static int turnCount;
+    private static int poisonLimit;
 
     public Player(String name, Room startingRoom) {
         super(name);
         inCombat = false;
         roomCount = 0;
         invisLimit = 0;
+        turnCount = 0;
+        poisonLimit = 0;
         inventory = new ArrayList<Item>();
         this.currentRoom = startingRoom;
         poisoned = false;
     }
 
-    public void setRoomCount(int x) {
-        roomCount = x;
+    @Override
+    public void takeDamage(int damage) {
+        health -= damage;
+        if (isPoisoned() && turnCount >= poisonLimit) {
+            poisoned = false;
+        }
+        turnCount++;
+        if (health <= 0) {
+            die();
+        }
     }
 
-    public void setInvisLimit(int x) {
-        invisLimit = x;
+    public void poison() {
+        health -= 5;
+    }
+
+    public int getPoisonLimit() {
+        return poisonLimit;
+    }
+
+    public void setPoisonLimit(int poisonLimit) {
+        Player.poisonLimit = poisonLimit;
+    }
+
+    public int getTurnCount() { return turnCount; }
+
+    public void setTurnCount(int turnCount) { Player.turnCount = turnCount; }
+
+    public void setRoomCount(int roomCount) {
+        Player.roomCount = roomCount;
+    }
+
+    public void setInvisLimit(int invisLimit) {
+        Player.invisLimit = invisLimit;
     }
 
     public int getRoomCount() {
@@ -70,6 +102,7 @@ public class Player extends Character {
         switch (effect) {
             case HEALING:
                 health += 30;
+                poisoned = false;
                 if (health > 100) health = 100;
                 break;
             case IVISABILITY:
@@ -78,6 +111,7 @@ public class Player extends Character {
                 break;
             case POISON:
                 poisoned = true;
+                poisonLimit = turnCount + 1;
                 break;
         }
     }
